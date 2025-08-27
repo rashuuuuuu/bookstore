@@ -1,1 +1,43 @@
-/* You can add global styles to this file, and also import other style files */
+/* You can add global styles to this file, and also import other style files
+@import url('https://fonts.googleapis.com/css2?family=Safira+March:ital,wght@0,100;0,300;0,400;0,700;0,900;1,100;1,300;1,400;1,700;1,900&display=swap'); */
+
+:root {
+  --mainColor: #ea4227;
+  --black: #1c2437;
+  --white: #ebddba;
+  --whiteSmoke: #c4c3ca;
+  --shadow: 0px 4px 8px 0 rgba(21, 21, 21, 0.2);
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+::before,
+::after {
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Safira March';
+  font-size: 16px;
+  letter-spacing: 1px;
+  font-weight: normal;
+  background-color: var(--black);
+  position: relative;
+  min-height: 100vh;
+  overflow: hidden;
+}
+
+body::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: url('https://www.shutterstock.com/image-photo/concept-contact-us-customer-support-600nw-2505308177.jpg')
+    no-repeat center center/cover;
+  z-index: -1;
+}

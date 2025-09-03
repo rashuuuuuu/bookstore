@@ -1,0 +1,59 @@
+name: Deploy Angular Frontend to S3
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        working-directory: ./ # Change to ./frontend if needed
+        run: npm ci
+
+      - name: Run tests
+        working-directory: ./ # Change to ./frontend if needed
+        run: npm test
+        continue-on-error: true
+
+      - name: Build Angular application
+        working-directory: ./ # Change to ./frontend if needed
+        run: |
+          npm run build
+          ls -l dist/
+        env:
+          CI: true
+
+      - name: Verify build output
+        working-directory: ./ # Change to ./frontend if needed
+        run: test -d dist || { echo "Build directory 'dist' not found"; exit 1; }
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-region: ${{ vars.AWS_REGION || 'us-east-1' }}
+
+      - name: Upload to S3
+        working-directory: ./ # Change to ./frontend if needed
+        run: aws s3 sync ./dist/ s3://${{ secrets.S3_BUCKET_NAME }} --delete
+        env:
+          S3_BUCKET_NAME: ${{ secrets.S3_BUCKET_NAME }}
+
+      - name: Invalidate CloudFront cache
+        run: |
+          aws cloudfront create-invalidation \
+            --distribution-id ${{ secrets.CLOUDFRONT_ID }} \
+            --paths "/index.html /assets/*"
+        continue-on-error: true
